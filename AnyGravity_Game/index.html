@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Tap Away Arrows — Shape Escape Puzzle</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="game-app">
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <div class="header-left">
+        <button id="soundBtn" class="icon-circle-btn" aria-label="Toggle Sound" title="Sound">🔊</button>
+        <button id="levelMapBtn" class="icon-circle-btn" aria-label="Level Map" title="100 Levels Map">🗺️</button>
+      </div>
+      <div class="header-title-box">
+        <h1 class="game-main-title">Help him to escape</h1>
+        <div class="level-indicator">
+          <span id="levelLabel">Level 1 / 100</span> • <span id="currentShapeBadge" class="shape-badge">Heart ❤️</span>
+        </div>
+        <div class="campaign-progress-pill" id="campaignProgressPill" title="Click to view 100 Levels Map">
+          <span>🏆</span> <span id="completedBadge">0 / 100 Cleared</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="scaleViewBtn" class="icon-circle-btn scale-view-btn" aria-label="Toggle enlarged puzzle view"
+          title="Scale puzzle view">⛶</button>
+        <button id="restartBtn" class="icon-circle-btn" aria-label="Restart Board" title="Restart">↻</button>
+      </div>
+    </header>
+
+    <!-- RELOCATED LEVEL PROGRESS -->
+    <div class="progress-container progress-container-redesign" aria-label="Level progress">
+      <div class="progress-meta"><span>LEVEL PROGRESS</span><strong id="levelProgressText">0%</strong></div>
+      <div class="progress-track">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- SUB HUD -->
+    <div class="hud-bar">
+      <div class="arrow-counter-pill" title="Remaining arrows">
+        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+        <span id="arrowsLeft">0</span>
+      </div>
+      <div class="hearts-container" id="heartsContainer" title="Lives remaining">
+        <span class="heart" data-idx="0">❤️</span>
+        <span class="heart" data-idx="1">❤️</span>
+        <span class="heart" data-idx="2">❤️</span>
+      </div>
+      <button id="diffBtn" class="difficulty-badge medium"
+        title="Click to change difficulty (Easy, Medium, Hard, Expert)">Medium</button>
+    </div>
+
+    <!-- 50% MILESTONE CELEBRATION -->
+    <div id="milestoneBanner" class="milestone-banner">
+      <span>50% Completed</span> <span>😎</span>
+    </div>
+
+    <!-- GAMEPLAY STAGE (BOARD + CHARACTER UNLOCK SIDE PANEL) -->
+    <div class="gameplay-stage" id="gameplayStage">
+      <!-- PUZZLE BOARD -->
+      <main class="board-wrapper" id="boardShell">
+        <svg id="boardSvg" class="board-svg" viewBox="0 0 578 578" role="img"
+          aria-label="Arrow puzzle shape board"></svg>
+      </main>
+
+      <!-- RESCUE HERO DISPLAY -->
+      <aside class="character-unlock-panel" id="characterUnlockPanel" aria-label="Rescue Hero">
+        <div class="character-frame-container" id="characterFrameContainer">
+          <video id="characterFrameImage" class="character-frame-image" src="assets/character-unlock.webm"
+            poster="assets/character-unlock-poster.png" autoplay loop muted playsinline preload="auto"
+            disablepictureinpicture aria-label="Rescue hero animation"></video>
+        </div>
+      </aside>
+    </div>
+
+    <!-- BOTTOM FLOATING ACTION CONTROLS -->
+    <footer class="bottom-controls">
+      <button id="hintBtn" class="tool-circle-btn" aria-label="Hint" title="Get a Hint">
+        <span class="btn-icon">💡</span>
+        <span id="hintBadge" class="badge-count">2</span>
+      </button>
+    </footer>
+
+    <!-- TOAST BAR -->
+    <div id="toastBar" class="toast-bar" role="status"></div>
+
+    <!-- WIN OVERLAY -->
+    <div id="winOverlay" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-hero-icon win">✦</div>
+        <h2 class="modal-title" id="winTitle">Level Cleared!</h2>
+        <p class="modal-desc" id="winDesc">Every arrow successfully escaped the shape.</p>
+        <div class="modal-campaign-status">
+          <span id="winCampaignStatus">Completed: 1 / 100 Levels</span>
+        </div>
+        <div class="modal-stats">
+          <div class="modal-stat-box">
+            <small>Arrows Cleared</small>
+            <strong id="winStatArrows">35</strong>
+          </div>
+          <div class="modal-stat-box">
+            <small>Total Taps</small>
+            <strong id="winStatTaps">38</strong>
+          </div>
+        </div>
+        <button id="nextLevelBtn" class="modal-primary-btn">
+          <span>NEXT LEVEL</span> <span>→</span>
+        </button>
+        <button id="replayBtn" class="modal-secondary-btn">Replay This Level</button>
+      </div>
+    </div>
+
+    <!-- LEVEL MAP MODAL (1-100 LEVELS) -->
+    <div id="levelMapOverlay" class="modal-overlay">
+      <div class="modal-card level-map-card">
+        <div class="level-map-header">
+          <div class="level-map-title-group">
+            <h2 class="modal-title" style="margin:0; font-size: 20px;">100 Levels Campaign</h2>
+            <small id="levelMapProgressText" style="color: #64748b; font-weight: 600;">0 / 100 Completed</small>
+          </div>
+          <button id="closeLevelMapBtn" class="icon-circle-btn"
+            style="width:34px; height:34px; font-size:16px;">✕</button>
+        </div>
+        <div class="level-map-grid" id="levelMapGrid">
+          <!-- Populated dynamically: 100 level cards -->
+        </div>
+        <button id="closeLevelMapBtnBottom" class="modal-secondary-btn" style="margin-top: 12px;">Close Map</button>
+      </div>
+    </div>
+
+    <!-- GAME OVER OVERLAY -->
+    <div id="gameOverOverlay" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-hero-icon lose">💔</div>
+        <h2 class="modal-title">Out of Lives!</h2>
+        <p class="modal-desc">Look closely at where each arrow points. Blocked arrows cannot escape until their path is
+          clear!</p>
+        <button id="reviveBtn" class="modal-primary-btn">
+          <span>TRY AGAIN</span> <span>↻</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full-screen victory animation; Next Level appears after the frame sequence. -->
+  <div id="celebrationOverlay" class="celebration-overlay" aria-live="polite" aria-label="Congratulations">
+    <video id="celebrationVideo" class="celebration-image" src="assets/victory-sequence.mp4" playsinline
+      webkit-playsinline x5-playsinline preload="auto" disablepictureinpicture
+      aria-label="Escape and congratulations animation"></video>
+    <div id="starAwardPanel" class="star-award-panel" hidden>
+      <div class="victory-card-kicker">✦ LEVEL COMPLETE ✦</div>
+      <div id="starAwardIcons" class="star-award-icons" aria-label="Level stars">☆☆☆</div>
+      <div id="starAwardText" class="star-award-text">Level rating</div>
+      <div class="victory-stat-grid">
+        <div class="victory-stat"><span>LEVEL</span><strong id="victoryLevelValue">1</strong></div>
+        <div class="victory-stat"><span>SCORE</span><strong id="victoryScoreValue">0</strong></div>
+        <div class="victory-stat"><span>TIME</span><strong id="victoryTimeValue">0:00</strong></div>
+        <div class="victory-stat"><span>HEARTS LEFT</span><strong id="victoryHeartsValue">3/3</strong></div>
+      </div>
+      <div id="starAwardStats" class="star-award-stats"></div>
+      <div class="victory-party" aria-hidden="true">
+        <span>🎈</span><span>🎉</span><span>🎊</span><span>🎆</span><span>💥</span>
+      </div>
+    </div>
+    <button id="celebrationNextBtn" class="celebration-next-btn" hidden>NEXT LEVEL <span>→</span></button>
+  </div>
+  <canvas id="confettiCanvas"></canvas>
+  <script src="game.js"></script>
+</body>
+
+</html>
